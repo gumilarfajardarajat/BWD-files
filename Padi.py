@@ -1,58 +1,111 @@
-import tkinter as tk
+import mysql.connector
 
-class Page(tk.Frame):
-    def __init__(self, *args, **kwargs):
-        tk.Frame.__init__(self, *args, **kwargs)
-    def show(self):
-        self.lift()
+mydb = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    passwd="",
+    database="bwd"
+)
+mycursor = mydb.cursor()
 
-class Page1(Page):
-   def __init__(self, *args, **kwargs):
-       Page.__init__(self, *args, **kwargs)
-       label = tk.Label(self, text="This is page 1")
-       label.pack(side="top", fill="both", expand=True)
+class Padi:
+    id = ""
+    name = ""
+    img = ""
 
-class Page2(Page):
-   def __init__(self, *args, **kwargs):
-       Page.__init__(self, *args, **kwargs)
-       label = tk.Label(self, text="This is page 2")
-       label.pack(side="top", fill="both", expand=True)
+    def alli(self):
+        sql = "SELECT * FROM padi"
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+        alli = list(dict(id=id, name=name,meanr=meanr, meang=meang, meanb=meanb, stdr=stdr, stdg=stdg, stdb=stdb, img=img, category=category, time=time, level=level) for id, name, meanr, meang, meanb, stdr, stdg, stdb, img, category, time, level in myresult)
+        return alli
 
-class Page3(Page):
-   def __init__(self, *args, **kwargs):
-       Page.__init__(self, *args, **kwargs)
-       label = tk.Label(self, text="This is page 3")
-       label.pack(side="top", fill="both", expand=True)
+    def all_tr(self):
+        sql = "SELECT * FROM padi WHERE category='training'"
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+        alli = list(dict(id=id, name=name,meanr=meanr, meang=meang, meanb=meanb, stdr=stdr, stdg=stdg, stdb=stdb, img=img, category=category, time=time, level=level) for id, name, meanr, meang, meanb, stdr, stdg, stdb, img, category, time, level in myresult)
+        return alli
 
-class MainView(tk.Frame):
-    def __init__(self, *args, **kwargs):
-        tk.Frame.__init__(self, *args, **kwargs)
-        p1 = Page1(self)
-        p2 = Page2(self)
-        p3 = Page3(self)
+    def all_ts(self):
+        sql = "SELECT * FROM padi WHERE category='testing'"
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+        alli = list(dict(id=id, name=name,meanr=meanr, meang=meang, meanb=meanb, stdr=stdr, stdg=stdg, stdb=stdb, img=img, category=category, time=time, level=level) for id, name, meanr, meang, meanb, stdr, stdg, stdb, img, category, time, level in myresult)
+        return alli
 
-        buttonframe = tk.Frame(self)
-        container = tk.Frame(self)
-        buttonframe.pack(side="top", fill="x", expand=False)
-        container.pack(side="top", fill="both", expand=True)
+    def find(self, id=""):
+        sql = "SELECT * FROM padi WHERE id=xid"
+        id = str(id)
+        sql = sql.replace("xid", id)
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+        self.id = myresult[0][0]
+        self.name = myresult[0][1]
+        self.meanr = myresult[0][2]
+        self.meang = myresult[0][3]
+        self.meanb = myresult[0][4]
+        self.stdr = myresult[0][5]
+        self.stdg = myresult[0][6]
+        self.stdb = myresult[0][7]
+        self.img = myresult[0][8]
+        self.category = myresult[0][9]
+        self.time = myresult[0][10]
+        self.level = myresult[0][11]
+        return self
 
-        p1.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
-        p2.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
-        p3.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
+    def last(self):
+        sql = "SELECT * FROM padi ORDER BY id DESC LIMIT 1"
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+        self.id = myresult[0][0]
+        self.name = myresult[0][1]
+        self.meanr = myresult[0][2]
+        self.meang = myresult[0][3]
+        self.meanb = myresult[0][4]
+        self.stdr = myresult[0][5]
+        self.stdg = myresult[0][6]
+        self.stdb = myresult[0][7]
+        self.img = myresult[0][8]
+        self.category = myresult[0][9]
+        self.time = myresult[0][10]
+        self.level = myresult[0][11]
+        return self
 
-        b1 = tk.Button(buttonframe, text="Page 1", command=p1.lift)
-        b2 = tk.Button(buttonframe, text="Page 2", command=p2.lift)
-        b3 = tk.Button(buttonframe, text="Page 3", command=p3.lift)
+    def save(self):
+        if (self.id == ""):
+            sql = "INSERT INTO padi (name, meanr, meang, meanb, stdr, stdg, stdb, img, category, time, level) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            val = (self.name, self.meanr, self.meang, self.meanb, self.stdr, self.stdg, self.stdb, self.img, self.category, self.time, self.level)
+            mycursor.execute(sql, val)
+            mydb.commit()
+            print("data has been created")
+        else:
+            name = self.name
+            meanr = self.meanr
+            meang = self.meang
+            meanb = self.meanb
+            stdr = self.stdr
+            stdg = self.stdg
+            stdb = self.stdb
+            img = self.img
 
-        b1.pack(side="left")
-        b2.pack(side="left")
-        b3.pack(side="left")
+            category = self.category
+            time = self.time
+            level = self.level
+            id = str(self.id)
+            # sql = "UPDATE padi SET name = |" + name + "|,img = |" + img + "| WHERE id = |" + id + "|"
+            sql = "UPDATE padi SET name = |" + name + "|,meanr = |" + meanr + "|,meang = |" + meang + "|,meanb = |" + meanb + "|,stdr = |" + stdr + "|,stdg = |" + stdg + "|,stdb = |" + stdb + "|,img = |" + img + "|,category = |" + category + "|,time = |" + time + "|,level = |" + level + "| WHERE id = |" + id + "|"
+            sql = sql.replace("|", "'")
+            mycursor.execute(sql)
+            mydb.commit()
+            print("data has been updated")
+        return self
 
-        p1.show()
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    main = MainView(root)
-    main.pack(side="top", fill="both", expand=True)
-    root.wm_geometry("400x400")
-    root.mainloop()
+    def delete(self):
+        sql = "DELETE FROM padi WHERE id=xid"
+        id = str(self.id)
+        sql = sql.replace("xid", id)
+        mycursor.execute(sql)
+        mydb.commit()
+        print("data has been deleted")
+        return self
